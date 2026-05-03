@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
+
+import User from '@/models/User';
 
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
@@ -14,11 +16,43 @@ const showModal = ref(true);
 
 const loginForm = ref(false);
 
-const cadForm = ref({
+const h2Title = computed(
+  () => loginForm.value ? 'Entre na sua conta' : 'Crie uma conta'
+);
+
+const loginOrCad = computed(
+  () => loginForm.value ? 'Não possui uma conta?' : 'Já possui uma conta?' 
+);
+
+const link = computed(
+  () => loginForm.value ? 'Cadastre-se' : 'Entrar'
+);
+
+const form = ref({
   name: '',
   password: '',
   email: ''
 });
+
+const emptyForm = () => {
+
+  loginForm.value = !loginForm.value;
+
+  Object.keys(form.value).forEach(key => {
+    form.value[key as keyof {name: string, password: string, email: string}] = '';
+  });
+
+}
+
+const cadUser = () => {
+
+  const user = new User(
+    form.value.name, form.value.password, form.value.email
+  );
+
+  user.cadUser();
+
+}
 
 </script>
 
@@ -27,6 +61,7 @@ const cadForm = ref({
   <Dialog
     v-model:visible="showModal"
     modal
+    pt:mask:class="backdrop-blur-sm"
     :style="{ width: '70rem' }"
     :breakpoints="{ '1196px': '75vw', '706px': '90vw' }">
 
@@ -41,35 +76,37 @@ const cadForm = ref({
         <div :style="{ paddingRight: '3rem' }" class="form-wrapper flex flex-col">
 
           <div class="flex flex-col">
-            <h2 class="title-form">Crie uma conta</h2>
+            <h2 class="title-form">{{ h2Title }}</h2>
   
-            <p>Já possui uma conta? <span @click="loginForm = true" class="span-pointer">Entrar</span></p>
+            <p>{{ loginOrCad }} <span @click="emptyForm" class="span-pointer">{{ link }}</span></p>
           </div>
   
           <form class="flex flex-col gap-3 mt-3">
 
             <div class="flex flex-row flex-wrap gap-2">
               <InputText
+                v-if="!loginForm"
                 class="input-form"
-                v-model="cadForm.name"
+                v-model="form.name"
                 name="name"
                 type="text"
                 placeholder="Nome" />
 
                 <InputText
+                  :style="{ width: loginForm ? '100%' : 'auto' }"
                   class="input-form"
-                  v-model="cadForm.email"
+                  v-model="form.email"
                   name="email"
                   type="email"
                   placeholder="Email" />
             </div>
 
             <Password
-              v-model="cadForm.password"
+              v-model="form.password"
               :feedback="false"
               placeholder="Senha" />
 
-            <Button label="Criar conta" />
+            <Button @click="cadUser" label="Criar conta" />
             
           </form>
         </div>
@@ -133,7 +170,7 @@ const cadForm = ref({
 @media(max-width: 706px) {
 
   .input-form {
-    width: 100%;
+    width: 100% !important;
   }
 
 }
