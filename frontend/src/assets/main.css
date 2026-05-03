@@ -1,0 +1,7 @@
+@import './base.css';
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+
+.p-password-input {
+    width: 100% !important;
+}
