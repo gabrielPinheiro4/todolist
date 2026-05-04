@@ -19,7 +19,7 @@ class UsersAPI(MethodView):
         ).one_or_none()
 
         if search_user:
-            return jsonify('Email já cadastrado em uma conta')
+            return {'message': 'Email já cadastrado em uma conta'}, 409
 
         passwd_hashed = hashpw(
             req_json.get('passwd').encode(),
@@ -37,4 +37,3 @@ class UsersAPI(MethodView):
         db.session.commit()
 
         return jsonify('Usuário criado com sucesso')
-

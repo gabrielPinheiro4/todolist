@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, defineComponent, ref } from 'vue';
+import { useToast } from 'primevue/usetoast';
 
 import User from '@/models/User';
 
@@ -7,14 +8,31 @@ import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Button from 'primevue/button';
+import { isAxiosError } from 'axios';
 
 defineComponent({
   name: 'LoginCardModal',
 });
 
+const toast = useToast();
+
 const showModal = ref(true);
 
 const loginForm = ref(false);
+
+const form = ref({
+  name: '',
+  password: '',
+  email: ''
+});
+
+const formCadPreenchido = computed(
+  () => form.value.email && form.value.password && form.value.name
+);
+
+const formPreenchido = computed(
+  () => formCadPreenchido.value || (loginForm.value && form.value.email && form.value.password)
+)
 
 const h2Title = computed(
   () => loginForm.value ? 'Entre na sua conta' : 'Crie uma conta'
@@ -28,11 +46,9 @@ const link = computed(
   () => loginForm.value ? 'Cadastre-se' : 'Entrar'
 );
 
-const form = ref({
-  name: '',
-  password: '',
-  email: ''
-});
+const btnLabel = computed(
+  () => loginForm.value ? 'Entrar' : 'Criar uma conta'
+);
 
 const emptyForm = () => {
 
@@ -44,13 +60,46 @@ const emptyForm = () => {
 
 }
 
-const cadUser = () => {
+const cadUser = async () => {
 
-  const user = new User(
-    form.value.name, form.value.password, form.value.email
-  );
+  try {
 
-  user.cadUser();
+    if (formPreenchido.value) {
+
+      if (!loginForm.value) {
+
+        const user = new User(
+          form.value.name, form.value.password, form.value.email
+        );
+
+        const res = await user.cadUser();
+
+        if (res) toast.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: res,
+          life: 4000
+        });
+
+        return;
+      }
+
+
+    }
+
+  } catch (error) {
+
+    if (isAxiosError(error) && error.status == 409) {
+
+      toast.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: error.response?.data.message,
+        life: 4000
+      })
+    }
+  }
+
 
 }
 
@@ -86,16 +135,16 @@ const cadUser = () => {
             <div class="flex flex-row flex-wrap gap-2">
               <InputText
                 v-if="!loginForm"
-                class="input-form"
                 v-model="form.name"
+                class="input-form"
                 name="name"
                 type="text"
                 placeholder="Nome" />
 
                 <InputText
                   :style="{ width: loginForm ? '100%' : 'auto' }"
-                  class="input-form"
                   v-model="form.email"
+                  class="input-form"
                   name="email"
                   type="email"
                   placeholder="Email" />
@@ -106,7 +155,10 @@ const cadUser = () => {
               :feedback="false"
               placeholder="Senha" />
 
-            <Button @click="cadUser" label="Criar conta" />
+            <Button
+              :disabled="!formPreenchido"
+              @click="cadUser"
+              :label="btnLabel" />
             
           </form>
         </div>

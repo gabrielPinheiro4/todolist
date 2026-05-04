@@ -5,6 +5,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
 import { useUserStore } from './stores/user';
 
+import Toast from 'primevue/toast';
 import NavbarDesktop from './components/navbar/NavbarDesktop.vue';
 import LoginCadForm from './components/modal/LoginCadForm.vue';
 
@@ -17,6 +18,8 @@ console.log(user.value)
 </script>
 
 <template>
+
+  <Toast position="bottom-center"/>
 
   <LoginCadForm v-if="!user"/>
 

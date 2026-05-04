@@ -1,9 +1,10 @@
 import './assets/main.css';
 
-// PrimeVUe
+// PrimeVue
+import { definePreset } from '@primeuix/themes';
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
-import { definePreset } from '@primeuix/themes';
+import ToastService from 'primevue/toastservice';
 import 'primeicons/primeicons.css'
 
 import { createApp } from 'vue';
@@ -13,9 +14,6 @@ import App from './App.vue';
 import router from './router';
 
 const app = createApp(App);
-
-app.use(createPinia());
-app.use(router);
 
 const Mypreset = definePreset(Aura, {
   semantic: {
@@ -43,5 +41,9 @@ app.use(PrimeVue, {
       }
   }
 });
+
+app.use(ToastService);
+app.use(createPinia());
+app.use(router);
 
 app.mount('#app');

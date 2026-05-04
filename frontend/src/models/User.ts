@@ -1,5 +1,4 @@
 import api from "@/axios/axios";
-import type { UserInterface } from "@/types/env";
 
 
 export default class User {
@@ -16,11 +15,22 @@ export default class User {
 
   async cadUser() {
 
-    const res = await api.post('/users', {
-      name: this.name, passwd: this.passwd, email: this.email
-    });
+    try {
 
-    console.log(res);
+      const res = await api.post('/users', {
+        name: this.name, passwd: this.passwd, email: this.email
+      });
+
+      if (res.status == 200) {
+
+        if (typeof res.data ==  'string') return res.data;
+      }
+
+      return null;
+
+    } catch(error) {
+      throw error;
+    }
 
   }
 }
