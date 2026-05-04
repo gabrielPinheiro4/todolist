@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import { RouterLink, RouterView } from 'vue-router'
 
@@ -9,11 +9,9 @@ import Toast from 'primevue/toast';
 import NavbarDesktop from './components/navbar/NavbarDesktop.vue';
 import LoginCadForm from './components/modal/LoginCadForm.vue';
 
-const { getUser } = useUserStore();
+const { userLoggedIn } = useUserStore();
 
-const user = computed(() => getUser());
-
-console.log(user.value)
+const user = computed(() => userLoggedIn());
 
 </script>
 

@@ -3,12 +3,12 @@ import { defineStore } from "pinia";
 
 export const useUserStore = defineStore('user', () => {
 
-  const getUser = () => {
-    return false;
+  const userLoggedIn = () => {
+    return document.cookie.includes('csrf_access_token');
   }
 
   return {
-    getUser,
+    userLoggedIn,
   }
 
 });

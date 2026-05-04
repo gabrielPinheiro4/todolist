@@ -33,4 +33,18 @@ export default class User {
     }
 
   }
+
+  static async login(email: string, passwd: string) {
+
+    try {
+
+      await api.post('/login',
+        { email, passwd },
+        { withCredentials: true }
+      );
+
+    } catch (error) {
+      throw error;
+    }
+  }
 }

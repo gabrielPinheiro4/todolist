@@ -1,7 +1,9 @@
 from flask import Flask
+from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from src.controllers.users_api import UsersAPI
 from src.db.base.base import db
+from src.controllers.users_api import UsersAPI
+from src.controllers.login_api import LoginAPI
 
 
 class App:
@@ -10,11 +12,15 @@ class App:
 
         self.app = Flask(__name__)
 
-        CORS(self.app, resources={r"/api/*": {"origins": "*"}})
+        CORS(self.app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
         self.app.config.from_object('config.Config')
 
+        JWTManager(self.app)
+
         self.app.add_url_rule('/api/users', view_func=UsersAPI.as_view('users'))
+
+        self.app.add_url_rule('/api/login', view_func=LoginAPI.as_view('login'))
 
         db.init_app(self.app)
 

@@ -84,19 +84,23 @@ const cadUser = async () => {
         return;
       }
 
+      await User.login(form.value.email, form.value.password);
+
+      showModal.value = false;
 
     }
 
   } catch (error) {
 
-    if (isAxiosError(error) && error.status == 409) {
+    if (isAxiosError(error)) {
 
       toast.add({
-        severity: 'warn',
-        summary: 'Atenção',
+        severity: error.status == 409 ? 'warn' : 'error',
+        summary: error.status == 409 ? 'Atenção' : 'Error',
         detail: error.response?.data.message,
         life: 4000
-      })
+      });
+
     }
   }
 

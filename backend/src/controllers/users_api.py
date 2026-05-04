@@ -22,14 +22,14 @@ class UsersAPI(MethodView):
             return {'message': 'Email já cadastrado em uma conta'}, 409
 
         passwd_hashed = hashpw(
-            req_json.get('passwd').encode(),
+            req_json.get('passwd').encode('UTF-8'),
             gensalt()
         )
 
         new_user = Usuarios(
             nome=req_json.get('name'),
             email=req_json.get('email'),
-            senha=passwd_hashed
+            senha=passwd_hashed.decode('UTF-8')
         )
 
         db.session.add(new_user)
