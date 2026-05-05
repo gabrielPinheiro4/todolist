@@ -5,6 +5,7 @@ from flask.views import MethodView
 from json import loads
 from ..db.base.base import db
 from ..models.projects import Projetos
+from ..models.tasks import Tarefas
 
 
 class ProjectsAPI(MethodView):
@@ -61,3 +62,27 @@ class ProjectsAPI(MethodView):
         db.session.commit()
 
         return jsonify('Projeto criado com sucesso')
+
+    @jwt_required()
+    def delete(self):
+
+        req_json: dict = loads(request.data)
+
+        project = db.session.execute(
+            select(Projetos)
+            .where(func.lower(Projetos.titulo) == req_json.get('projectName').lower())
+
+        ).one_or_none()
+
+        if not project:
+            return {'message': 'Projeto não encontrado'}, 404
+
+        project, = project
+
+        Tarefas.query.filter_by(id_projetos=project.id).delete()
+
+        db.session.delete(project)
+
+        db.session.commit()
+
+        return jsonify('Projeto deletado com sucesso')

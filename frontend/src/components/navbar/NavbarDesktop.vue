@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { isAxiosError } from 'axios';
 import { useUserStore } from '@/stores/user';
+import { useToast } from 'primevue/usetoast';
 import { computed, defineComponent, onBeforeMount, ref } from 'vue';
 
 import Popover from 'primevue/popover';
@@ -16,7 +18,13 @@ defineComponent({
   name: 'NavbarDesktop',
 });
 
+const { add } = useToast();
+
 const showModalProject = ref(false);
+
+const showEditProjectModal = ref(false);
+
+const projectToDelete = ref<string | null>(null);
 
 const popOver = ref();
 
@@ -40,18 +48,93 @@ const nodeTree = computed(() => [{
   })
 }]);
 
-const toggle = (event: event) => {
+const toggle = (event: PointerEvent) => {
+
+  let parentEl: HTMLElement | null = null;
+
+  if (event.target instanceof HTMLSpanElement) {
+    parentEl = event.target.parentElement!.parentElement;
+  }
+
+  if (event.target instanceof HTMLButtonElement) {
+    parentEl = event.target.parentElement
+  }
+
+  if (parentEl) {
+
+    if (parentEl.firstChild instanceof HTMLParagraphElement) {
+
+      projectToDelete.value = parentEl.firstChild.innerText;
+    }
+
+  }
+
   popOver.value.toggle(event);
 }
 
 const addProject = async () => {
 
-  const project = new Project(
-    formNewProject.value.title,
-    formNewProject.value.desc
-  );
+  try {
 
-  await project.addProject();
+    const project = new Project(
+      formNewProject.value.title,
+      formNewProject.value.desc
+    );
+
+    await project.addProject();
+
+  } catch(error) {
+    if (isAxiosError(error)) {
+
+      if (error.status === 409) {
+
+        add({
+          severity: 'warn',
+          summary: 'Atenção',
+          detail: error.response?.data.message,
+          life: 4000
+        });
+      }
+    }
+  }
+}
+
+const delProject = async () => {
+
+  try {
+
+    if (projectToDelete.value) {
+
+      const res = await Project.delProject(projectToDelete.value);
+
+      if (res) {
+
+        add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: res,
+          life: 4000
+        })
+      }
+    }
+
+  } catch (error) {
+
+    if (isAxiosError(error)) {
+
+      if (error.status === 404) {
+
+        add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error,
+          life: 4000
+        });
+      }
+    }
+  }
+
+
 }
 
 onBeforeMount(async () => {
@@ -192,26 +275,6 @@ onBeforeMount(async () => {
               icon="pi pi-ellipsis-h"
               variant="text"
               severity="secondary" />
-
-            <Popover ref="popOver">
-
-              <div class="flex flex-col gap-2">
-                <Button
-                  size="small"
-                  icon="pi pi-pencil"
-                  variant="text"
-                  label="Editar"
-                  severity="secondary" />
-
-                  <Button
-                    size="small"
-                    icon="pi pi-trash"
-                    variant="text"
-                    label="Deletar"
-                    severity="danger" />
-              </div>
-
-            </Popover>
           </div>
         </template>
 
@@ -224,6 +287,27 @@ onBeforeMount(async () => {
         icon="pi pi-plus"
         variant="text" />
     </div>
+
+    <Popover ref="popOver">
+
+      <div class="flex flex-col gap-2">
+        <Button
+          size="small"
+          icon="pi pi-pencil"
+          variant="text"
+          label="Editar"
+          severity="secondary" />
+
+          <Button
+            @click="delProject"
+            size="small"
+            icon="pi pi-trash"
+            variant="text"
+            label="Deletar"
+            severity="danger" />
+      </div>
+
+    </Popover>
 
   </nav>
 </template>

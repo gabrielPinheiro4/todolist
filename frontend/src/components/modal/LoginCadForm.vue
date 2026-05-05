@@ -60,7 +60,7 @@ const emptyForm = () => {
 
 }
 
-const cadUser = async () => {
+const cadLoginUser = async () => {
 
   try {
 
@@ -161,7 +161,7 @@ const cadUser = async () => {
 
             <Button
               :disabled="!formPreenchido"
-              @click="cadUser"
+              @click="cadLoginUser"
               :label="btnLabel" />
             
           </form>

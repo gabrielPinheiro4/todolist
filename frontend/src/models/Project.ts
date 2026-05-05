@@ -62,4 +62,28 @@ export default class Project {
 
     return null;
   }
+
+  static async delProject(projectName: string) {
+
+    try {
+
+      const jwt = Cookies.get('csrf_access_token');
+
+      if (jwt) {
+
+        const res = await api.delete('/projects', {
+          data: { projectName },
+          headers: { 'X-CSRF-TOKEN': jwt },
+          withCredentials: true
+        });
+
+        if (typeof res.data == 'string') {
+          return res.data;
+        }
+      }
+
+    } catch (error) {
+      throw error;
+    }
+  }
 }
