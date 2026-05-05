@@ -64,6 +64,30 @@ class ProjectsAPI(MethodView):
         return jsonify('Projeto criado com sucesso')
 
     @jwt_required()
+    def patch(self):
+
+        req_json: dict = loads(request.data)
+
+        project = db.session.execute(
+            select(Projetos)
+            .where(func.lower(Projetos.titulo) == req_json.get('projectName').lower())
+
+        ).one_or_none()
+
+        if not project:
+            return {'message': 'Projeto não encontrado'}, 404
+
+        project, = project
+
+        project.titulo = req_json.get('newProjectName')
+
+        project.descricao = req_json.get('newDesc')
+
+        db.session.commit()
+
+        return jsonify('Projeto alterado com sucesso')
+
+    @jwt_required()
     def delete(self):
 
         req_json: dict = loads(request.data)

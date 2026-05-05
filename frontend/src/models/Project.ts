@@ -1,7 +1,8 @@
 import api from '@/axios/axios';
-import type { ProjectInterface } from '@/types/env';
-import { checkType } from '@/utils/check';
 import Cookies from 'js-cookie'
+
+import { checkType } from '@/utils/check';
+import type { ProjectInterface } from '@/types/env';
 
 
 export default class Project {
@@ -83,6 +84,31 @@ export default class Project {
       }
 
     } catch (error) {
+      throw error;
+    }
+  }
+
+  static async editProject(
+    projectName: string, newProjectName: string, newDesc: string
+  )
+  {
+
+    try {
+
+      const jwt = Cookies.get('csrf_access_token');
+
+      if (jwt) {
+
+        const res = await api.patch('/projects',
+          { projectName, newProjectName, newDesc },
+          { headers: { 'X-CSRF-TOKEN': jwt }, withCredentials: true }
+        );
+
+        if (typeof res.data === 'string') return res.data;
+
+      }
+
+    } catch(error) {
       throw error;
     }
   }

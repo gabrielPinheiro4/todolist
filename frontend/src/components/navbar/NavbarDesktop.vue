@@ -2,7 +2,7 @@
 import { isAxiosError } from 'axios';
 import { useUserStore } from '@/stores/user';
 import { useToast } from 'primevue/usetoast';
-import { computed, defineComponent, onBeforeMount, ref } from 'vue';
+import { computed, defineComponent, onBeforeMount, ref, watch } from 'vue';
 
 import Popover from 'primevue/popover';
 import Message from 'primevue/message';
@@ -24,7 +24,9 @@ const showModalProject = ref(false);
 
 const showEditProjectModal = ref(false);
 
-const projectToDelete = ref<string | null>(null);
+const formEditProjectDiferent = ref(false);
+
+const projectSelectedDots = ref<string | null>(null);
 
 const popOver = ref();
 
@@ -34,9 +36,68 @@ const user = ref<UserInterface | null>(null);
 
 const projects = ref<ProjectInterface[] | null>(null);
 
+const projectSelectedComp = computed(() => {
+
+  if (projects.value && projectSelectedDots.value) {
+
+    return projects.value.find(
+      item => item.title === projectSelectedDots.value
+    );
+  }
+
+  return null;
+});
+
 const formNewProject = ref({
   title: '',
   desc: ''
+});
+
+const formEditProject = ref({
+  title: '',
+  desc: ''
+});
+
+watch(
+  [
+    projectSelectedComp,
+    () => formEditProject.value.title,
+    () => formEditProject.value.desc
+  ],
+  (
+    [newValueProject, newTitle, newDesc],
+    [oldValueProject]
+
+  ) => {
+
+  if (!oldValueProject && newValueProject) {
+    formEditProject.value.title = newValueProject.title;
+    formEditProject.value.desc = newValueProject.desc;
+  }
+
+  if (newValueProject) {
+
+    if (newTitle && newDesc) {
+
+      if (
+        newTitle.toLowerCase().trim() === newValueProject.title.toLowerCase().trim()
+        && newDesc.toLowerCase().trim() === newValueProject.desc.toLowerCase().trim()
+      )
+      {
+        formEditProjectDiferent.value = false;
+      }
+  
+      if (
+        newTitle.toLowerCase().trim() !== newValueProject.title.toLowerCase().trim()
+        || newDesc.toLowerCase().trim() !== newValueProject.desc.toLowerCase().trim()
+      )
+      {
+        formEditProjectDiferent.value = true;
+      }
+    }
+
+  }
+
 });
 
 const nodeTree = computed(() => [{
@@ -64,7 +125,7 @@ const toggle = (event: PointerEvent) => {
 
     if (parentEl.firstChild instanceof HTMLParagraphElement) {
 
-      projectToDelete.value = parentEl.firstChild.innerText;
+      projectSelectedDots.value = parentEl.firstChild.innerText;
     }
 
   }
@@ -81,7 +142,17 @@ const addProject = async () => {
       formNewProject.value.desc
     );
 
-    await project.addProject();
+    const res = await project.addProject();
+
+    if (res) {
+
+      add({
+        severity: 'success',
+        summary: 'Sucesso',
+        detail: res,
+        life: 4000
+      });
+    }
 
   } catch(error) {
     if (isAxiosError(error)) {
@@ -99,13 +170,34 @@ const addProject = async () => {
   }
 }
 
+const editProject = async () => {
+
+  const res = await Project.editProject(
+    projectSelectedDots.value!,
+    formEditProject.value.title,
+    formEditProject.value.desc
+  );
+
+  if (res) {
+
+    add({
+      severity: 'success',
+      summary: 'Sucesso',
+      detail: res,
+      life: 4000
+    })
+
+    showEditProjectModal.value = false;
+  }
+}
+
 const delProject = async () => {
 
   try {
 
-    if (projectToDelete.value) {
+    if (projectSelectedDots.value) {
 
-      const res = await Project.delProject(projectToDelete.value);
+      const res = await Project.delProject(projectSelectedDots.value);
 
       if (res) {
 
@@ -222,6 +314,73 @@ onBeforeMount(async () => {
 
   </Dialog>
 
+  <Dialog
+    modal
+    v-model:visible="showEditProjectModal"
+    header="Editar projeto"
+    :style="{ width: '25rem' }">
+
+    <span class="text-surface-500 dark:text-surface-400 block mb-8">
+      Modifique os campos a seguir para editar um projeto
+    </span>
+
+    <div class="flex flex-col gap-4">
+
+      <div class="flex flex-col gap-1">
+
+        <InputText
+          v-model="formEditProject.title"
+          maxlength="60"
+          size="small"
+          placeholder="Título"
+          class="flex-auto" />
+
+        <Message
+          size="small"
+          severity="secondary"
+          variant="simple">
+          {{ formEditProject.title!.length }}/60
+        </Message>
+
+      </div>
+
+      <div class="flex flex-col gap-1">
+
+        <InputText
+          v-model="formEditProject.desc"
+          size="small"
+          maxlength="80"
+          placeholder="Descrição"
+          class="flex-auto" />
+
+          <Message
+            size="small"
+            severity="secondary"
+            variant="simple">
+            {{ formEditProject.desc!.length }}/80
+        </Message>
+      </div>
+
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <Button
+        size="small"
+        type="button"
+        label="Cancelar"
+        severity="secondary"
+        @click="showEditProjectModal = false" />
+
+      <Button
+        size="small"
+        type="button"
+        label="Editar"
+        :disabled="!formEditProjectDiferent || (!formEditProject.title || !formEditProject.desc)"
+        @click="editProject"/>
+    </div>
+
+  </Dialog>
+
   <nav class="navbar-desktop flex flex-col gap-4">
 
     <div class="first flex flex-row">
@@ -292,6 +451,7 @@ onBeforeMount(async () => {
 
       <div class="flex flex-col gap-2">
         <Button
+          @click="showEditProjectModal = true"
           size="small"
           icon="pi pi-pencil"
           variant="text"
