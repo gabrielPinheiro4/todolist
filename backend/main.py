@@ -4,6 +4,7 @@ from flask_cors import CORS
 from src.db.base.base import db
 from src.controllers.users_api import UsersAPI
 from src.controllers.login_api import LoginAPI
+from src.controllers.projects_api import ProjectsAPI
 
 
 class App:
@@ -21,6 +22,8 @@ class App:
         self.app.add_url_rule('/api/users', view_func=UsersAPI.as_view('users'))
 
         self.app.add_url_rule('/api/login', view_func=LoginAPI.as_view('login'))
+
+        self.app.add_url_rule('/api/projects', view_func=ProjectsAPI.as_view('projects'))
 
         db.init_app(self.app)
 

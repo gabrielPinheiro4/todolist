@@ -35,7 +35,7 @@ class LoginAPI(MethodView):
         if not passwd_is_correct:
             return error
 
-        date_expires = date.today() + timedelta(days=1)
+        date_expires = date.today() + timedelta(days=3)
 
         token = create_access_token(
             identity=f'{user_found.id}',

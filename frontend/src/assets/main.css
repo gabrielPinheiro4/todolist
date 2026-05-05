@@ -3,5 +3,28 @@
 @import "tailwindcss-primeui";
 
 .p-password-input {
-    width: 100% !important;
+  width: 100% !important;
+}
+
+.tree-projects {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.p-tree-node {
+  color: #202020 !important;
+}
+
+.p-tree-node-leaf {
+  justify-content: start !important;
+}
+
+.p-tree-node-content .p-tree-node-selectable {
+  justify-content: start !important;
+  align-items: start !important;
+}
+
+/* tira a seta de dropdown dos projetos */
+li[aria-level='2'] .p-tree-node-content .p-tree-node-toggle-button {
+  display: none !important;
 }

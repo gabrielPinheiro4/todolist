@@ -3,3 +3,9 @@ export interface UserInterface {
   email: string;
   passwd: string;
 }
+
+export interface ProjectInterface {
+  title: string;
+  desc: string;
+  date_creation: Date;
+}

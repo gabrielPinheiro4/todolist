@@ -1,3 +1,4 @@
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from bcrypt import hashpw, gensalt
 from flask.views import MethodView
 from sqlalchemy import select
@@ -37,3 +38,20 @@ class UsersAPI(MethodView):
         db.session.commit()
 
         return jsonify('Usuário criado com sucesso')
+
+    @jwt_required()
+    def get(self):
+
+        current_user_id = get_jwt_identity()
+
+        user = db.session.execute(
+            select(Usuarios).where(Usuarios.id == current_user_id)
+
+        ).one_or_none()
+
+        if not user:
+            return 'Usuário não encontrado', 404
+
+        user, = user
+
+        return jsonify({'name': user.nome, 'email': user.email})

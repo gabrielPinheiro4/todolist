@@ -15,6 +15,7 @@
     "@primeuix/themes": "^2.0.3",
     "@tailwindcss/vite": "^4.2.4",
     "axios": "^1.16.0",
+    "js-cookie": "^3.0.5",
     "pinia": "^3.0.4",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.5",

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
 
 import { useUserStore } from './stores/user';
 
@@ -23,7 +23,7 @@ const user = computed(() => userLoggedIn());
 
   <NavbarDesktop/>
 
-  <main>
+  <main v-if="user">
     <RouterView />
   </main>
 

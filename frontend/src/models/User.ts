@@ -1,4 +1,8 @@
 import api from "@/axios/axios";
+import Cookies from 'js-cookie'
+
+import { checkType } from "@/utils/check";
+import type { UserInterface } from "@/types/env";
 
 
 export default class User {
@@ -46,5 +50,26 @@ export default class User {
     } catch (error) {
       throw error;
     }
+  }
+
+  static async getUser() {
+
+    const jwt = Cookies.get('csrf_access_token');
+
+    if (jwt) {
+
+      const res = await api.get('users', {
+        headers: { 'X-CSRF-TOKEN': jwt },
+        withCredentials: true
+      });
+
+      if (checkType<UserInterface>(res.data, 'email')) {
+
+        return res.data
+      }
+    }
+
+    return null;
+
   }
 }
