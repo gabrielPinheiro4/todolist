@@ -39,7 +39,8 @@ class ProjectsAPI(MethodView):
         req_json: dict = loads(request.data)
 
         project_created = db.session.execute(
-            select(Projetos.titulo).where(Projetos.titulo == req_json.get('title'))
+            select(Projetos.titulo)
+            .where(func.lower(Projetos.titulo) == req_json.get('title').lower())
 
         ).one_or_none()
 
