@@ -4,6 +4,8 @@ import { useUserStore } from '@/stores/user';
 import { useToast } from 'primevue/usetoast';
 import { computed, defineComponent, onBeforeMount, ref, watch } from 'vue';
 
+import Select from 'primevue/select';
+import DatePicker from 'primevue/datepicker';
 import Popover from 'primevue/popover';
 import Message from 'primevue/message';
 import InputText from 'primevue/inputtext';
@@ -11,8 +13,10 @@ import Dialog from 'primevue/dialog';
 import Tree from 'primevue/tree';
 import Button from 'primevue/button';
 
-import type { ProjectInterface, UserInterface } from '@/types/env';
+import type { ProjectInterface, StatusPriorityInterface, UserInterface } from '@/types/env';
 import Project from '@/models/Project';
+import Priority from '@/models/Priority';
+import Task from '@/models/Task';
 
 defineComponent({
   name: 'NavbarDesktop',
@@ -23,6 +27,8 @@ const { add } = useToast();
 const showModalProject = ref(false);
 
 const showEditProjectModal = ref(false);
+
+const showAddTaskModal = ref(false);
 
 const formEditProjectDiferent = ref(false);
 
@@ -35,6 +41,8 @@ const selectedKey = ref();
 const user = ref<UserInterface | null>(null);
 
 const projects = ref<ProjectInterface[] | null>(null);
+
+const priorities = ref<StatusPriorityInterface[] | null>(null);
 
 const projectSelectedComp = computed(() => {
 
@@ -57,6 +65,21 @@ const formEditProject = ref({
   title: '',
   desc: ''
 });
+
+const formNewTask = ref({
+  title: '',
+  desc: '',
+  dateCreation: new Date(),
+  prioritySelected: {} as StatusPriorityInterface,
+  projectSelected: {} as ProjectInterface,
+});
+
+const formNotComplete = computed(
+  () => !formNewTask.value.title
+  || !formNewTask.value.desc
+  || Object.keys(formNewTask.value.projectSelected).length === 0
+  || Object.keys(formNewTask.value.prioritySelected).length === 0
+);
 
 watch(
   [
@@ -206,7 +229,7 @@ const delProject = async () => {
           summary: 'Sucesso',
           detail: res,
           life: 4000
-        })
+        });
       }
     }
 
@@ -225,8 +248,46 @@ const delProject = async () => {
       }
     }
   }
+}
 
+const addTask = async () => {
 
+  try {
+
+    const newTask = new Task(
+      formNewTask.value.title,
+      formNewTask.value.desc,
+      formNewTask.value.dateCreation,
+      formNewTask.value.prioritySelected.id,
+      formNewTask.value.projectSelected.id,
+    );
+
+    const res = await newTask.addTask();
+
+    if (res) {
+
+      add({
+        severity: 'success',
+        summary: 'Sucesso',
+        detail: res,
+        life: 4000
+      });
+
+      showAddTaskModal.value = false;
+    }
+
+  } catch (error) {
+
+    if (isAxiosError(error)) {
+      add({
+        severity: 'error',
+        summary: 'Error',
+        detail: error,
+        life: 4000
+      });
+    }
+
+  }
 }
 
 onBeforeMount(async () => {
@@ -235,11 +296,15 @@ onBeforeMount(async () => {
 
   const allProjects = await Project.getAllProjects();
 
+  const allPriorities = await Priority.getPriorities();
+
   const userLogged = await getUser;
 
   if (userLogged) user.value = userLogged;
 
   if (allProjects) projects.value = allProjects;
+
+  if (allPriorities) priorities.value = allPriorities;
 
 });
 
@@ -248,9 +313,99 @@ onBeforeMount(async () => {
 <template>
 
   <Dialog
+    v-model:visible="showAddTaskModal"
+    position="top"
+    :draggable="false"
+    :style="{ width: '35rem', padding: '1rem', boxShadow: '0 15px 50px rgba(0,0,0,.35)' }">
+
+    <template #container="{ closeCallback }">
+      
+      <div class="flex flex-col gap-3">
+
+        <div class="flex flex-col">
+
+          <InputText
+            :style="{ paddingBottom: '0', paddingLeft: '0' }"
+            class="new-task-input task-bold"
+            type="text"
+            placeholder="Ex: Mandar formulário na quarta-feira"
+            v-model="formNewTask.title" />
+
+          <InputText
+            :style="{paddingLeft: '0'}"
+            size="small"
+            class="new-task-input"
+            type="text"
+            placeholder="Descrição"
+            v-model="formNewTask.desc" />
+
+        </div>
+
+        <div class="flex flex-row flex-wrap gap-3">
+
+          <div class="flex flex-col gap-1 items-end">
+
+            <DatePicker
+              :style="{width: '8rem'}"
+              v-model="formNewTask.dateCreation"
+              dateFormat="dd/mm/yy"
+              size="small"
+              showIcon
+              fluid
+              iconDisplay="input"
+              inputId="icondisplay" />
+          </div>
+
+          <Select
+            v-if="priorities"
+            v-model="formNewTask.prioritySelected"
+            :options="priorities"
+            size="small"
+            optionLabel="title"
+            placeholder="Prioridade" />
+
+        </div>
+
+        <div class="flex flex-row flex-wrap justify-between">
+
+          <Select
+            :style="{border: 'none', boxShadow: 'none'}"
+            v-if="projects"
+            v-model="formNewTask.projectSelected"
+            :options="projects"
+            size="small"
+            optionLabel="title"
+            placeholder="Projeto" />
+
+          <div class="flex flex-row flex-wrap gap-2">
+
+            <Button
+              size="small"
+              type="button"
+              label="Cancelar"
+              severity="secondary"
+              @click="showAddTaskModal = false" />
+
+            <Button
+              size="small"
+              type="button"
+              label="Adicionar tarefa"
+              :disabled="formNotComplete"
+              @click="addTask" />
+          </div>
+
+        </div>
+
+      </div>
+    </template>
+
+  </Dialog>
+
+  <Dialog
     modal
     v-model:visible="showModalProject"
     header="Adicionar projeto"
+    :draggable="false"
     :style="{ width: '25rem' }">
 
     <span class="text-surface-500 dark:text-surface-400 block mb-8">
@@ -309,7 +464,7 @@ onBeforeMount(async () => {
         type="button"
         label="Adicionar"
         :disabled="!formNewProject.title || !formNewProject.desc"
-        @click="addProject"/>
+        @click="addProject" />
     </div>
 
   </Dialog>
@@ -318,6 +473,7 @@ onBeforeMount(async () => {
     modal
     v-model:visible="showEditProjectModal"
     header="Editar projeto"
+    :draggable="false"
     :style="{ width: '25rem' }">
 
     <span class="text-surface-500 dark:text-surface-400 block mb-8">
@@ -394,6 +550,7 @@ onBeforeMount(async () => {
 
       <li class="flex flex-row items-center">
         <Button
+          @click="showAddTaskModal = true"
           size="small"
           class="btn-start"
           severity="primary"

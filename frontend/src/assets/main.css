@@ -28,3 +28,12 @@
 li[aria-level='2'] .p-tree-node-content .p-tree-node-toggle-button {
   display: none !important;
 }
+
+.new-task-input {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.new-task-input.task-bold {
+  font-weight: bold !important;
+}

@@ -24,6 +24,7 @@ class ProjectsAPI(MethodView):
 
             projects_from_user = [
                 {
+                    'id': project[0].id,
                     'title': project[0].titulo,
                     'desc': project[0].descricao,
                     'date_creation': project[0].data_criacao
