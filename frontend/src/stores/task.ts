@@ -4,19 +4,19 @@ import { defineStore } from "pinia";
 
 export const useTaskStore = defineStore('task', () => {
 
-  const taskAdded = ref(false);
+  const valuesUpdated = ref(false);
 
-  const updateTaskAdded = (value: boolean) => {
-    taskAdded.value = value;
+  const updatedValues = (value: boolean) => {
+    valuesUpdated.value = value;
   }
 
-  const getTaskAdded = () => {
-    return taskAdded.value;
+  const getValuesUpdated = () => {
+    return valuesUpdated.value;
   }
 
   return {
-    getTaskAdded,
-    updateTaskAdded
+    getValuesUpdated,
+    updatedValues
   }
 
 });

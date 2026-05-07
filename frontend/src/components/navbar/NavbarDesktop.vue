@@ -29,7 +29,7 @@ const { push } = useRouter();
 
 const { add } = useToast();
 
-const { updateTaskAdded } = useTaskStore();
+const { updatedValues } = useTaskStore();
 
 const showModalProject = ref(false);
 
@@ -225,6 +225,8 @@ const editProject = async () => {
 
     await getData();
 
+    updatedValues(true);
+
     showEditProjectModal.value = false;
   }
 }
@@ -294,7 +296,7 @@ const addTask = async () => {
 
       showAddTaskModal.value = false;
 
-      updateTaskAdded(true);
+      updatedValues(true);
     }
 
   } catch (error) {

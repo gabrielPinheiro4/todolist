@@ -28,9 +28,9 @@ const route = useRoute();
 
 const { add } = useToast();
 
-const { getTaskAdded, updateTaskAdded } = useTaskStore();
+const { getValuesUpdated, updatedValues } = useTaskStore();
 
-const taskAddedValue = computed(() => getTaskAdded())
+const taskAddedValue = computed(() => getValuesUpdated())
 
 const showModalTask = ref(false);
 
@@ -130,7 +130,7 @@ watch(
 
     await updateProjectValue(newID);
 
-    updateTaskAdded(false);
+    updatedValues(false);
   }
 
   await updateProjectValue(newID);
