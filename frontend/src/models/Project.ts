@@ -72,7 +72,7 @@ export default class Project {
     return null;
   }
 
-  static async delProject(projectName: string) {
+  static async delProject(projectId: number) {
 
     try {
 
@@ -81,7 +81,7 @@ export default class Project {
       if (jwt) {
 
         const res = await api.delete('/projects', {
-          data: { projectName },
+          data: { projectId },
           headers: { 'X-CSRF-TOKEN': jwt },
           withCredentials: true
         });

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useTaskStore } from '@/stores/task';
-import { RouterLink, useRouter } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { isAxiosError } from 'axios';
 import { useUserStore } from '@/stores/user';
 import { useToast } from 'primevue/usetoast';
@@ -25,6 +25,8 @@ defineComponent({
   name: 'NavbarDesktop',
 });
 
+const route = useRoute();
+
 const { push } = useRouter();
 
 const { add } = useToast();
@@ -48,6 +50,8 @@ const user = ref<UserInterface | null>(null);
 const projects = ref<ProjectInterface[] | null>(null);
 
 const priorities = ref<StatusPriorityInterface[] | null>(null);
+
+const paramComputed = computed(() => route.params);
 
 const projectSelectedComp = computed(() => {
 
@@ -235,9 +239,9 @@ const delProject = async () => {
 
   try {
 
-    if (projectSelectedDots.value) {
+    if (projectSelectedComp.value) {
 
-      const res = await Project.delProject(projectSelectedDots.value);
+      const res = await Project.delProject(projectSelectedComp.value.id);
 
       if (res) {
 
@@ -247,6 +251,10 @@ const delProject = async () => {
           detail: res,
           life: 4000
         });
+
+        if (parseInt(paramComputed.value.id as string) === projectSelectedComp.value.id) {
+          push({ name: 'home' });
+        }
 
         await getData();
       }

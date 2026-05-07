@@ -133,3 +133,24 @@ class TaskAPI(MethodView):
         db.session.commit()
 
         return jsonify('Tarefa alterada com sucesso')
+
+    @jwt_required()
+    def delete(self):
+
+        req_json: dict = loads(request.data)
+
+        task = db.session.execute(
+            select(Tarefas).where(Tarefas.id == req_json.get('taskId'))
+
+        ).one_or_none()
+
+        if not task:
+            return {'message': 'Tarefa não encontrada'}, 404
+
+        task, = task
+
+        db.session.delete(task)
+
+        db.session.commit()
+
+        return jsonify('Tarefa deletada com sucesso')

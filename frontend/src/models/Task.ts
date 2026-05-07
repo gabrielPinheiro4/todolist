@@ -111,4 +111,28 @@ export default class Task {
     }
 
   }
+
+  static async delTask(taskId: number) {
+
+    try {
+
+      const jwt = Cookies.get('csrf_access_token');
+
+      if (jwt) {
+
+        const res = await api.delete('/tasks',{
+          data: { taskId },
+          headers:{ 'X-CSRF-TOKEN': jwt },
+          withCredentials: true
+        });
+
+        if (typeof res.data === 'string') {
+          return res.data;
+        }
+      }
+
+    } catch (error) {
+      throw error;
+    }
+  }
 }

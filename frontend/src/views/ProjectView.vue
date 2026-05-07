@@ -23,6 +23,7 @@ import type {
 
 
 import Task from '@/models/Task';
+import { isAxiosError } from 'axios';
 
 const route = useRoute();
 
@@ -109,6 +110,43 @@ const editTask = async () => {
       showModalTask.value = false;
     }
   }
+}
+
+const delTask = async () => {
+
+  try {
+
+    if (taskSelected.value) {
+
+      const res = await Task.delTask(taskSelected.value.id);
+
+      if (res) {
+
+        add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: res,
+          life: 4000
+        });
+
+        showModalTask.value = false;
+
+        updatedValues(true);
+      }
+    }
+  } catch (error) {
+
+    if (isAxiosError(error)) {
+
+      add({
+        severity: 'error',
+        summary: 'Error',
+        detail: error,
+        life: 4000
+      });
+    }
+  }
+
 }
 
 const updateProjectValue = async (id: string) => {
@@ -268,6 +306,13 @@ onMounted(async () => {
           label="Editar tarefa"
           :disabled="!formDiferent"
           @click="editTask" />
+
+          <Button
+            size="small"
+            type="button"
+            severity="danger"
+            label="Deletar tarefa"
+            @click="delTask" />
       </div>
     </div>
   </Dialog>
