@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import { RouterView } from 'vue-router'
 
@@ -23,7 +23,7 @@ const user = computed(() => userLoggedIn());
 
   <div class="flex flex-row">
 
-    <NavbarDesktop/>
+    <NavbarDesktop />
 
     <main v-if="user">
       <RouterView />
@@ -36,7 +36,7 @@ const user = computed(() => userLoggedIn());
 
 main {
   margin-top: 5rem;
-  margin-left: 25rem;
+  margin-left: 40rem;
   width: 100%;
 }
 

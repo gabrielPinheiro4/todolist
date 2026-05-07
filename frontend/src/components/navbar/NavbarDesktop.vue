@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useTaskStore } from '@/stores/task';
 import { RouterLink } from 'vue-router';
 import { isAxiosError } from 'axios';
 import { useUserStore } from '@/stores/user';
@@ -14,16 +15,19 @@ import Dialog from 'primevue/dialog';
 import Tree from 'primevue/tree';
 import Button from 'primevue/button';
 
-import type { ProjectInterface, StatusPriorityInterface, UserInterface } from '@/types/env';
 import Project from '@/models/Project';
 import Priority from '@/models/Priority';
 import Task from '@/models/Task';
+
+import type { ProjectInterface, StatusPriorityInterface, UserInterface } from '@/types/env';
 
 defineComponent({
   name: 'NavbarDesktop',
 });
 
 const { add } = useToast();
+
+const { updateTaskAdded } = useTaskStore();
 
 const showModalProject = ref(false);
 
@@ -145,7 +149,7 @@ const toggle = (event: PointerEvent) => {
 
   if (parentEl) {
 
-    if (parentEl.firstChild instanceof HTMLParagraphElement) {
+    if (parentEl.firstChild instanceof HTMLAnchorElement) {
 
       projectSelectedDots.value = parentEl.firstChild.innerText;
     }
@@ -174,6 +178,10 @@ const addProject = async () => {
         detail: res,
         life: 4000
       });
+
+      await getData();
+
+      showModalProject.value = false;
     }
 
   } catch(error) {
@@ -207,7 +215,9 @@ const editProject = async () => {
       summary: 'Sucesso',
       detail: res,
       life: 4000
-    })
+    });
+
+    await getData();
 
     showEditProjectModal.value = false;
   }
@@ -229,6 +239,8 @@ const delProject = async () => {
           detail: res,
           life: 4000
         });
+
+        await getData();
       }
     }
 
@@ -272,7 +284,11 @@ const addTask = async () => {
         life: 4000
       });
 
+      await getData();
+
       showAddTaskModal.value = false;
+
+      updateTaskAdded(true);
     }
 
   } catch (error) {
@@ -289,22 +305,26 @@ const addTask = async () => {
   }
 }
 
-onBeforeMount(async () => {
-
-  const { getUser } = useUserStore();
+const getData = async () => {
 
   const allProjects = await Project.getProjects();
 
   const allPriorities = await Priority.getPriorities();
 
+  if (allProjects instanceof Array) projects.value = allProjects;
+
+  if (allPriorities) priorities.value = allPriorities;
+}
+
+onBeforeMount(async () => {
+
+  const { getUser } = useUserStore();
+
   const userLogged = await getUser;
 
   if (userLogged) user.value = userLogged;
 
-  if (allProjects instanceof Array) projects.value = allProjects;
-
-  if (allPriorities) priorities.value = allPriorities;
-
+  await getData()
 });
 
 </script>
@@ -579,10 +599,13 @@ onBeforeMount(async () => {
           <div class="flex flex-row items-center justify-between">
 
             <RouterLink
+              v-if="slotProps.node.label !== 'Projetos'"
               class="project-link"
               :to="`/project/${slotProps.node.id}`">
               {{ slotProps.node.label }}
             </RouterLink>
+
+            <p v-else>{{ slotProps.node.label }}</p>
 
             <Button
               v-if="slotProps.node.label != 'Projetos'"
@@ -635,7 +658,9 @@ onBeforeMount(async () => {
   padding: 20px;
   background: #fcfaf8 !important;
   height: 100vh;
-  width: 280px;
+  width: 300px;
+  position: fixed;
+  z-index: 1;
 }
 
 .icon-user {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import { useTaskStore } from '@/stores/task';
 import { useToast } from 'primevue';
 import { useRoute } from 'vue-router';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -20,11 +21,16 @@ import type {
   ProjectInterface, StatusPriorityInterface, TaskInterface
 } from '@/types/env';
 
+
 import Task from '@/models/Task';
 
 const route = useRoute();
 
 const { add } = useToast();
+
+const { getTaskAdded, updateTaskAdded } = useTaskStore();
+
+const taskAddedValue = computed(() => getTaskAdded())
 
 const showModalTask = ref(false);
 
@@ -98,22 +104,36 @@ const editTask = async () => {
         life: 4000
       });
 
+      await updateProjectValue(projectIDParam.value);
+
       showModalTask.value = false;
     }
   }
 }
 
-watch(
-  [projectIDParam, taskSelected],
-  async ([newID, newTask], [_, oldTask]
+const updateProjectValue = async (id: string) => {
 
-  ) => {
-
-  const project = await Project.getProjects(newID);
+  const project = await Project.getProjects(id);
 
   if (project && !(project instanceof Array)) {
     projectSelected.value = project;
   }
+}
+
+watch(
+  [projectIDParam, taskSelected, taskAddedValue],
+  async ([newID, newTask, newAdded], [_, oldTask]
+
+  ) => {
+
+  if (newAdded) {
+
+    await updateProjectValue(newID);
+
+    updateTaskAdded(false);
+  }
+
+  await updateProjectValue(newID);
 
   if (newTask && newTask != oldTask) {
 
@@ -263,12 +283,21 @@ onMounted(async () => {
       </Message>
     </div>
 
-    <div class="tasks flex flex-col gap-3">
+    <div
+      v-if="projectSelected.tasks.length > 0"
+      class="tasks flex flex-col gap-3">
 
-      <div @click="openModalTask(task)" v-for="task in projectSelected.tasks" :key="task.id">
+      <div
+        @click="openModalTask(task)"
+        v-for="task in projectSelected.tasks"
+        :key="task.id">
 
         <div class="flex flex-col gap-1 open-modal-task">
-          <p class="title-task font-bold">{{ task.title }}</p>
+
+          <div class="flex flex-row items-center gap-2">
+            <div class="circle"></div>
+            <p class="title-task font-bold">{{ task.title }}</p>
+          </div>
 
           <Message size="small" severity="secondary" variant="simple">
             {{ task.desc }}
@@ -283,6 +312,10 @@ onMounted(async () => {
       </div>
     </div>
 
+    <p v-else class="mt-3" :style="{color: '#f97316'}">
+      Esse projeto não possui nenhuma tarefa
+    </p>
+
   </section>
 </template>
 
@@ -290,6 +323,13 @@ onMounted(async () => {
 
 h2 {
   font-size: 1.7rem;
+}
+
+.circle {
+  background: #f97316;
+  border-radius: 100%;
+  width: 5px;
+  height: 5px;
 }
 
 .tasks {

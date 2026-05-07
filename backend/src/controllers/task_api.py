@@ -29,7 +29,7 @@ class TaskAPI(MethodView):
             titulo=req_json.get('title'),
             descricao=req_json.get('desc'),
             data_criacao=func.now(),
-            data_vencimaneto=req_json.get('dateCreation'),
+            data_vencimento=req_json.get('dateCreation'),
             id_projetos=req_json.get('projectId'),
             id_status=status[0],
             id_prioridade=req_json.get('priorityId')

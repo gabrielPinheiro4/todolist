@@ -88,6 +88,8 @@ const cadLoginUser = async () => {
 
       showModal.value = false;
 
+      location.reload();
+
     }
 
   } catch (error) {
