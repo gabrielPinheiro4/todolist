@@ -71,4 +71,44 @@ export default class Task {
 
     }
   }
+
+  static async editTask (
+    taskId: number,
+    title: string,
+    desc: string,
+    priorityId: number,
+    statusId: number,
+    dateExpiration: Date
+  )
+  {
+
+    const jwt = Cookies.get('csrf_access_token');
+
+    if (jwt) {
+
+      const day = (
+        dateExpiration.getDate() <= 9
+        ? `0${dateExpiration.getDate()}`
+        : dateExpiration.getDate()
+      );
+
+      const month = (
+        dateExpiration.getMonth() + 1 <= 9
+        ? `0${dateExpiration.getMonth() + 1}`
+        : dateExpiration.getMonth() + 1
+      );
+
+      const dateF = (`${dateExpiration.getFullYear()}-${month}-${day}`)
+
+      const res = await api.patch('/tasks', 
+        { taskId, title, desc, priorityId, statusId, dateExpiration: dateF },
+        { headers:{ 'X-CSRF-TOKEN': jwt }, withCredentials: true }
+      )
+
+      if (typeof res.data === 'string') {
+        return res.data;
+      }
+    }
+
+  }
 }

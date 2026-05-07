@@ -37,3 +37,12 @@ li[aria-level='2'] .p-tree-node-content .p-tree-node-toggle-button {
 .new-task-input.task-bold {
   font-weight: bold !important;
 }
+
+/* .project-link {
+  transition: .3s;
+  padding: 5px;
+}
+
+.project-link:hover {
+  background: #fdba74 !important;
+} */

@@ -22,3 +22,16 @@ class StatusAPI(MethodView):
         ]
 
         return jsonify(all_status)
+
+    @staticmethod
+    def get_status_by_id(id):
+
+        status = db.session.execute(
+            select(Status).where(Status.id == id)
+
+        ).one_or_none()
+
+        if not status:
+            return False
+
+        return { 'id': status[0].id, 'title': status[0].tipo }

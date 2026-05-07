@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RouterLink } from 'vue-router';
 import { isAxiosError } from 'axios';
 import { useUserStore } from '@/stores/user';
 import { useToast } from 'primevue/usetoast';
@@ -35,8 +36,6 @@ const formEditProjectDiferent = ref(false);
 const projectSelectedDots = ref<string | null>(null);
 
 const popOver = ref();
-
-const selectedKey = ref();
 
 const user = ref<UserInterface | null>(null);
 
@@ -85,7 +84,7 @@ watch(
   [
     projectSelectedComp,
     () => formEditProject.value.title,
-    () => formEditProject.value.desc
+    () => formEditProject.value.desc,
   ],
   (
     [newValueProject, newTitle, newDesc],
@@ -128,7 +127,7 @@ const nodeTree = computed(() => [{
   label: 'Projetos',
   children: projects.value?.map((item, index) => {
 
-    return { key: `0-${index}`, label: item.title }
+    return { key: `0-${index}`, label: item.title, id: item.id }
   })
 }]);
 
@@ -294,7 +293,7 @@ onBeforeMount(async () => {
 
   const { getUser } = useUserStore();
 
-  const allProjects = await Project.getAllProjects();
+  const allProjects = await Project.getProjects();
 
   const allPriorities = await Priority.getPriorities();
 
@@ -302,7 +301,7 @@ onBeforeMount(async () => {
 
   if (userLogged) user.value = userLogged;
 
-  if (allProjects) projects.value = allProjects;
+  if (allProjects instanceof Array) projects.value = allProjects;
 
   if (allPriorities) priorities.value = allPriorities;
 
@@ -574,15 +573,16 @@ onBeforeMount(async () => {
 
     <div class="flex flex-row justify-between items-start">
 
-      <Tree
-        v-model:selectionKeys="selectedKey"
-        :value="nodeTree"
-        selectionMode="single"
-        class="w-full md:w-[30rem] tree-projects">
+      <Tree :value="nodeTree" class="w-full tree-projects">
 
         <template #default="slotProps">
           <div class="flex flex-row items-center justify-between">
-            <p>{{ slotProps.node.label }}</p>
+
+            <RouterLink
+              class="project-link"
+              :to="`/project/${slotProps.node.id}`">
+              {{ slotProps.node.label }}
+            </RouterLink>
 
             <Button
               v-if="slotProps.node.label != 'Projetos'"

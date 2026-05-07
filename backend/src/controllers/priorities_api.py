@@ -22,3 +22,17 @@ class PrioritiesAPI(MethodView):
         ]
 
         return jsonify(all_priorities)
+
+    @staticmethod
+    def get_priority_by_id(id):
+        
+        priority = db.session.execute(
+            select(Prioridades)
+            .where(Prioridades.id == id)
+
+        ).one_or_none()
+
+        if not priority:
+            return False
+        
+        return { 'id': priority[0].id, 'title': priority[0].tipo }

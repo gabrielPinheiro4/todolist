@@ -21,18 +21,23 @@ const user = computed(() => userLoggedIn());
 
   <LoginCadForm v-if="!user"/>
 
-  <NavbarDesktop/>
+  <div class="flex flex-row">
 
-  <main v-if="user">
-    <RouterView />
-  </main>
+    <NavbarDesktop/>
+
+    <main v-if="user">
+      <RouterView />
+    </main>
+  </div>
 
 </template>
 
 <style scoped>
 
 main {
-  padding: 1rem;
+  margin-top: 5rem;
+  margin-left: 25rem;
+  width: 100%;
 }
 
 </style>

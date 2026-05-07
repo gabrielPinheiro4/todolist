@@ -41,7 +41,7 @@ export default class Project {
     }
   }
 
-  static async getAllProjects() {
+  static async getProjects(projectID?: string) {
 
     const jwt = Cookies.get('csrf_access_token');
 
@@ -49,15 +49,23 @@ export default class Project {
 
       const res = await api.get('/projects', {
         headers: { 'X-CSRF-TOKEN': jwt },
+        params: { projectID },
         withCredentials: true
-      })
+      });
 
-      if (res.data instanceof Array) {
+      if (!projectID) {
 
-        if(res.data.every(item => checkType<ProjectInterface>(item, 'title'))) {
-          return res.data;
+        if (res.data instanceof Array) {
+
+          if(res.data.every(item => checkType<ProjectInterface>(item, 'title'))) {
+            return res.data;
+          }
+
         }
+      }
 
+      if (checkType<ProjectInterface>(res.data, 'title')) {
+        return res.data;
       }
     }
 

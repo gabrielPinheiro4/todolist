@@ -8,7 +8,14 @@ export interface ProjectInterface {
   id: number;
   title: string;
   desc: string;
-  date_creation: Date;
+  dateCreation: string;
+  tasks: TaskInterface[];
+}
+
+export interface TaskInterface extends ProjectInterface {
+  dateExpiration: string;
+  priority: StatusPriorityInterface;
+  status: StatusPriorityInterface;
 }
 
 export interface StatusPriorityInterface {

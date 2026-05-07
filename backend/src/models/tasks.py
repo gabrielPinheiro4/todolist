@@ -18,7 +18,7 @@ class Tarefas(db.Model):
         Date, nullable=False, server_default=func.current_date()
     )
 
-    data_vencimaneto: Mapped[date] = mapped_column(Date, nullable=False)
+    data_vencimento: Mapped[date] = mapped_column(Date, nullable=False)
 
     id_projetos: Mapped[int] = mapped_column(
         ForeignKey('projetos.id'), nullable=False
