@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useTaskStore } from '@/stores/task';
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import { isAxiosError } from 'axios';
 import { useUserStore } from '@/stores/user';
 import { useToast } from 'primevue/usetoast';
@@ -24,6 +24,8 @@ import type { ProjectInterface, StatusPriorityInterface, UserInterface } from '@
 defineComponent({
   name: 'NavbarDesktop',
 });
+
+const { push } = useRouter();
 
 const { add } = useToast();
 
@@ -579,6 +581,18 @@ onBeforeMount(async () => {
           icon="pi pi-plus" />
       </li>
 
+      <li>
+        <Button
+          @click="push({ name: 'home' })"
+          size="small"
+          class="btn-start"
+          severity="secondary"
+          variant="text"
+          icon="pi pi-home"
+          label="Entrada"
+          type="button" />
+      </li>
+
       <li class="flex flex-row items-center">
         <Button
           size="small"
@@ -589,6 +603,7 @@ onBeforeMount(async () => {
           label="Buscar"
           icon="pi pi-search" />
       </li>
+
     </ul>
 
     <div class="flex flex-row justify-between items-start">

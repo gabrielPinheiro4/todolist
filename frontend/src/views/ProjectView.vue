@@ -151,7 +151,7 @@ watch(
     formEditTask.value.status = newTask.status;
   }
 
-});
+}, { immediate: true });
 
 onMounted(async () => {
   const priorities = await Priority.getPriorities();

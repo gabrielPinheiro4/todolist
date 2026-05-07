@@ -41,6 +41,7 @@ class ProjectsAPI(MethodView):
 
         project = db.session.execute(
             select(Projetos)
+            .where(Projetos.id_usuario == user_id)
             .where(Projetos.id == request.args.get('projectID'))
 
         ).one_or_none()
@@ -80,10 +81,13 @@ class ProjectsAPI(MethodView):
     @jwt_required()
     def post(self):
 
+        user_id = get_jwt_identity()
+
         req_json: dict = loads(request.data)
 
         project_created = db.session.execute(
             select(Projetos.titulo)
+            .where(Projetos.id_usuario) == user_id
             .where(func.lower(Projetos.titulo) == req_json.get('title').lower())
 
         ).one_or_none()
@@ -111,8 +115,11 @@ class ProjectsAPI(MethodView):
 
         req_json: dict = loads(request.data)
 
+        user_id = get_jwt_identity()
+
         project = db.session.execute(
             select(Projetos)
+            .where(Projetos.id_usuario == user_id)
             .where(func.lower(Projetos.titulo) == req_json.get('projectName').lower())
 
         ).one_or_none()
@@ -135,8 +142,11 @@ class ProjectsAPI(MethodView):
 
         req_json: dict = loads(request.data)
 
+        user_id = get_jwt_identity()
+
         project = db.session.execute(
             select(Projetos)
+            .where(Projetos.id_usuario == user_id)
             .where(func.lower(Projetos.titulo) == req_json.get('projectName').lower())
 
         ).one_or_none()
