@@ -1,14 +1,78 @@
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import jsonify, request
 from sqlalchemy import select, func
 from json import loads
 from flask.views import MethodView
 from ..db.base.base import db
 from ..models.tasks import Tarefas
+from ..models.projects import Projetos
 from ..models.status import Status
+from .status_api import StatusAPI
+from .priorities_api import PrioritiesAPI
 
 
 class TaskAPI(MethodView):
+
+    @jwt_required()
+    def get(self):
+
+        user_id = get_jwt_identity()
+
+        projects = db.session.execute(
+            select(Projetos.id).where(Projetos.id_usuario == user_id)
+
+        ).all()
+
+        list_projects_ids = [project[0] for project in projects]
+
+        if not projects:
+            return {'message': 'Usuário não possui nenhum projeto'}, 404
+
+        if len(request.args) == 0:
+            
+            tasks = db.session.execute(
+                select(Tarefas).where(Tarefas.id_projetos.in_(list_projects_ids))
+
+            ).all()
+
+            tasks_f = [
+
+                {
+                    'id': task[0].id,
+                    'title': task[0].titulo,
+                    'desc': task[0].descricao,
+                    'dateCreation': task[0].data_criacao,
+                    'dateExpiration': task[0].data_vencimento,
+                    'priority': PrioritiesAPI.get_priority_by_id(task[0].id_prioridade),
+                    'status': StatusAPI.get_status_by_id(task[0].id_status)
+                }
+
+                for task in tasks
+            ]
+
+            return jsonify(tasks_f)
+
+        task = db.session.execute(
+            select(Tarefas).where(Tarefas.id == request.args.get('taskId'))
+
+        ).one_or_none()
+
+        if not task:
+            return {'message': 'Tarefa não encontrada'}, 404
+
+        task, = task
+
+        task_f = {
+            'id': task.id,
+            'title': task.titulo,
+            'desc': task.descricao,
+            'dateCreation': task.data_criacao,
+            'dateExpiration': task.data_vencimento,
+            'priority': PrioritiesAPI.get_priority_by_id(task.id_prioridade),
+            'status': StatusAPI.get_status_by_id(task.id_status)
+        }
+
+        return jsonify(task_f)
 
     @jwt_required()
     def post(self):
