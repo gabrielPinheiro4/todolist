@@ -120,7 +120,7 @@ class ProjectsAPI(MethodView):
         project = db.session.execute(
             select(Projetos)
             .where(Projetos.id_usuario == user_id)
-            .where(func.lower(Projetos.titulo) == req_json.get('projectName').lower())
+            .where(Projetos.id == req_json.get('projectId'))
 
         ).one_or_none()
 

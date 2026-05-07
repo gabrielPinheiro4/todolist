@@ -98,7 +98,11 @@ watch(
 
   ) => {
 
-  if (!oldValueProject && newValueProject) {
+  if (
+    !oldValueProject && newValueProject
+    || (newValueProject && oldValueProject) && newValueProject?.id !== oldValueProject?.id
+  )
+  {
     formEditProject.value.title = newValueProject.title;
     formEditProject.value.desc = newValueProject.desc;
   }
@@ -205,7 +209,7 @@ const addProject = async () => {
 const editProject = async () => {
 
   const res = await Project.editProject(
-    projectSelectedDots.value!,
+    projectSelectedComp.value!.id,
     formEditProject.value.title,
     formEditProject.value.desc
   );

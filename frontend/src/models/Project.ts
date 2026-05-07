@@ -97,7 +97,7 @@ export default class Project {
   }
 
   static async editProject(
-    projectName: string, newProjectName: string, newDesc: string
+    projectId: number, newProjectName: string, newDesc: string
   )
   {
 
@@ -108,7 +108,7 @@ export default class Project {
       if (jwt) {
 
         const res = await api.patch('/projects',
-          { projectName, newProjectName, newDesc },
+          { projectId, newProjectName, newDesc },
           { headers: { 'X-CSRF-TOKEN': jwt }, withCredentials: true }
         );
 
