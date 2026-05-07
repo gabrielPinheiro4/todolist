@@ -593,17 +593,6 @@ onBeforeMount(async () => {
           type="button" />
       </li>
 
-      <li class="flex flex-row items-center">
-        <Button
-          size="small"
-          class="btn-start"
-          severity="secondary"
-          variant="text"
-          type="button"
-          label="Buscar"
-          icon="pi pi-search" />
-      </li>
-
     </ul>
 
     <div class="flex flex-row justify-between items-start">
