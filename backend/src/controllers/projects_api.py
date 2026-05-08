@@ -47,7 +47,7 @@ class ProjectsAPI(MethodView):
         ).one_or_none()
 
         if not project:
-            return {'message': 'Projeto não encontrado'}, 404
+            return jsonify([])
 
         project, project
 

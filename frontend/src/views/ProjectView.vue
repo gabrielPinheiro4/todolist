@@ -151,6 +151,8 @@ const delTask = async () => {
 
 const updateProjectValue = async (id: string) => {
 
+  console.log('a')
+
   const project = await Project.getProjects(id);
 
   if (project && !(project instanceof Array)) {

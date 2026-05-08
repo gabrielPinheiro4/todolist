@@ -147,7 +147,7 @@ watch(
 const nodeTree = computed(() => [{
   key: '0',
   label: 'Projetos',
-  children: projects.value?.map((item, index) => {
+  children: !projects.value ? [] : projects.value?.map((item, index) => {
 
     return { key: `0-${index}`, label: item.title, id: item.id }
   })
@@ -344,6 +344,8 @@ const getData = async () => {
 
   const allPriorities = await Priority.getPriorities();
 
+  if (!allProjects) projects.value = null;
+
   if (allProjects instanceof Array) projects.value = allProjects;
 
   if (allPriorities) priorities.value = allPriorities;
@@ -357,7 +359,7 @@ onBeforeMount(async () => {
 
   if (userLogged) user.value = userLogged;
 
-  await getData()
+  await getData();
 });
 
 </script>
