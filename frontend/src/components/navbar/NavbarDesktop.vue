@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useTaskStore } from '@/stores/task';
-import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { useScreenStore } from '@/stores/screen';
 import { isAxiosError } from 'axios';
 import { useUserStore } from '@/stores/user';
 import { useToast } from 'primevue/usetoast';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { computed, defineComponent, onBeforeMount, ref, watch } from 'vue';
 
+import Drawer from 'primevue/drawer';
 import Select from 'primevue/select';
 import DatePicker from 'primevue/datepicker';
 import Popover from 'primevue/popover';
@@ -32,6 +34,12 @@ const { push } = useRouter();
 const { add } = useToast();
 
 const { updatedValues } = useTaskStore();
+
+const { getScreenWidth } = useScreenStore();
+
+const screeWidth = computed(() => getScreenWidth());
+
+const showNavbar = ref(false);
 
 const showModalProject = ref(false);
 
@@ -192,6 +200,9 @@ const addProject = async () => {
       await getData();
 
       showModalProject.value = false;
+
+      formNewProject.value.title = '';
+      formNewProject.value.desc = '';
     }
 
   } catch(error) {
@@ -305,6 +316,12 @@ const addTask = async () => {
       showAddTaskModal.value = false;
 
       updatedValues(true);
+
+      formNewTask.value.title = '';
+      formNewTask.value.desc = '',
+      formNewTask.value.dateCreation = new Date();
+      formNewTask.value.prioritySelected = {} as StatusPriorityInterface;
+      formNewTask.value.projectSelected = {} as ProjectInterface;
     }
 
   } catch (error) {
@@ -572,7 +589,7 @@ onBeforeMount(async () => {
 
   </Dialog>
 
-  <nav class="navbar-desktop flex flex-col gap-4">
+  <nav v-if="screeWidth > 1100" class="navbar-desktop flex flex-col gap-4">
 
     <div class="first flex flex-row">
       <div class="user flex items-center flex-row gap-2">
@@ -668,6 +685,113 @@ onBeforeMount(async () => {
     </Popover>
 
   </nav>
+
+  <Button
+    v-else
+    @click="showNavbar = true"
+    size="small"
+    icon="pi pi-bars" />
+
+  <Drawer v-if="screeWidth <= 1100" v-model:visible="showNavbar">
+
+    <template #header>
+      <div class="first flex flex-row">
+        <div class="user flex items-center flex-row gap-2">
+          <p class="icon-user">{{ user?.name[0]?.toUpperCase() }}</p>
+          <p>{{ user?.name }}</p>
+        </div>
+      </div>
+    </template>
+
+    <ul class="buttons flex flex-col gap-2">
+
+      <li class="flex flex-row items-center">
+        <Button
+          @click="showAddTaskModal = true"
+          size="small"
+          class="btn-start"
+          severity="primary"
+          variant="text"
+          type="button"
+          label="Adicionar tarefa"
+          icon="pi pi-plus" />
+      </li>
+
+      <li>
+        <Button
+          @click="push({ name: 'home' })"
+          size="small"
+          class="btn-start"
+          severity="secondary"
+          variant="text"
+          icon="pi pi-home"
+          label="Entrada"
+          type="button" />
+      </li>
+
+    </ul>
+
+    <div class="flex flex-row justify-between items-start">
+
+      <Tree :value="nodeTree" class="w-full tree-projects">
+
+        <template #default="slotProps">
+          <div class="flex flex-row items-center justify-between">
+
+            <RouterLink
+              v-if="slotProps.node.label !== 'Projetos'"
+              class="project-link"
+              :to="`/project/${slotProps.node.id}`">
+              {{ slotProps.node.label }}
+            </RouterLink>
+
+            <p v-else>{{ slotProps.node.label }}</p>
+
+            <Button
+              v-if="slotProps.node.label != 'Projetos'"
+              @click="toggle"
+              size="small"
+              icon="pi pi-ellipsis-h"
+              variant="text"
+              severity="secondary" />
+          </div>
+        </template>
+
+      </Tree>
+
+      <Button
+        size="small"
+        @click="showModalProject = true"
+        severity="contrast"
+        icon="pi pi-plus"
+        variant="text" />
+    </div>
+
+    <Popover ref="popOver">
+
+      <div class="flex flex-col gap-2">
+        <Button
+          @click="showEditProjectModal = true"
+          size="small"
+          icon="pi pi-pencil"
+          variant="text"
+          label="Editar"
+          severity="secondary" />
+
+          <Button
+            @click="delProject"
+            size="small"
+            icon="pi pi-trash"
+            variant="text"
+            label="Deletar"
+            severity="danger" />
+      </div>
+
+    </Popover>
+
+  </Drawer>
+
+
 </template>
 
 <style scoped>

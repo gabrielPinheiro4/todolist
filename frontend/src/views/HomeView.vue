@@ -57,4 +57,10 @@ span, h3, .help {
   color: #f97316;
 }
 
+@media (max-width: 580px) {
+  p {
+    width: 100%;
+  }
+}
+
 </style>

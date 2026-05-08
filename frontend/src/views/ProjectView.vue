@@ -217,16 +217,18 @@ onMounted(async () => {
 
     <div class="flex flex-col">
 
-      <div :style="{width: '100%'}" class="flex flex-row justify-between gap-1">
-  
+      <div
+        :style="{width: '100%'}"
+        class="modal-items flex flex-row justify-between gap-1">
+
         <div class="flex flex-col">
-  
+
           <InputText
             :style="{ paddingBottom: '0', paddingLeft: '0' }"
             class="new-task-input task-bold"
             type="text"
             v-model="formEditTask.title" />
-  
+
           <InputText
             :style="{ paddingLeft: '0' }"
             size="small"
@@ -235,16 +237,17 @@ onMounted(async () => {
             placeholder="Descrição"
             v-model="formEditTask.desc" />
         </div>
-  
+
         <div class="flex flex-col gap-2 right-side">
-  
+
           <div class="flex flex-col gap-1">
             
             <Message size="small" severity="secondary" variant="simple">
               Data de vencimento
             </Message>
-  
+
             <DatePicker
+              class="date-expiration-task"
               :style="{width: '8rem'}"
               v-model="formEditTask.dateExpiration"
               dateFormat="dd/mm/yy"
@@ -254,13 +257,13 @@ onMounted(async () => {
               iconDisplay="input"
               inputId="icondisplay" />
           </div>
-  
+
           <div class="flex flex-col gap-1">
-  
+
             <Message size="small" severity="secondary" variant="simple">
               Prioridade
             </Message>
-  
+
             <Select
               v-if="allPriorities"
               size="small"
@@ -268,15 +271,15 @@ onMounted(async () => {
               :options="allPriorities"
               optionLabel="title"
               class="w-full" />
-  
+
           </div>
 
           <div class="flex flex-col gap-1">
-  
+
             <Message size="small" severity="secondary" variant="simple">
               Status
             </Message>
-  
+
             <Select
               v-if="allStatus"
               size="small"
@@ -284,14 +287,14 @@ onMounted(async () => {
               :options="allStatus"
               optionLabel="title"
               class="w-full" />
-  
+
           </div>
-  
+
         </div>
-  
+
       </div>
 
-      <div class="flex flex-row gap-2">
+      <div class="btns-task flex flex-row gap-2">
 
         <Button
           size="small"
@@ -385,12 +388,26 @@ h2 {
   font-size: 1.2rem;
 }
 
-.right-side {
-  background: #fcfaf8;
-}
-
 .open-modal-task {
   cursor: pointer;
+}
+
+@media (max-width: 572px) {
+  .btns-task {
+    margin-top: 2rem;
+  }
+
+  .modal-items {
+    flex-direction: column;
+  }
+
+  .date-expiration-task {
+    width: 100% !important;
+  }
+
+  .right-side {
+    margin-top: 1rem;
+  }
 }
 
 </style>
