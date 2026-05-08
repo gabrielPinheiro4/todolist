@@ -23,7 +23,7 @@ onMounted(() => {
 
 <template>
 
-  <Toast position="bottom-center"/>
+  <Toast :style="{ padding: '0 1rem' }" position="bottom-center"/>
 
   <LoginCadForm v-if="!user"/>
 
